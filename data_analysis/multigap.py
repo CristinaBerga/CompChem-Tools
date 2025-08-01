@@ -2,7 +2,7 @@
 
 ####################################################################
 # Script: multigap.py
-# Author: Cristina Berga, https://github.com/CristinaBerga
+# Author: Cristina Berga, https://github.com/CristinaBerga/CompChem-Tools/
 # Creation Date: May 2025
 ####################################################################
 #
