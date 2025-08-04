@@ -5,13 +5,17 @@ Scripts
 
    This tool is designed for the automated analysis of Nuclear Magnetic Resonance (NMR) calculations. It extracts chemical shift values for both ¹H and ¹³C nuclei, generates a CSV file with all the data, and produces SVG images of the molecules with the corresponding chemical shifts as labels. A TMS reference file (TMS.out) is required for the calculation.
 
-3. multigap.py
+2. multigap.py
 
     This script analyses the results of HOMO-LUMO calculations. It extracts information on the HOMO, LUMO, and other nearby orbitals to calculate energy gaps. It generates a text file with a summary of the gaps for each molecule.
 
-5. qp.py
+3. qp.py
 
     A tool for extracting and visualising Mulliken charges and spin densities from Gaussian output files. The script generates an Excel file with the numerical data and creates clear SVG images of the molecule, labelled with the charge or spin density values. It offers the flexibility to get molecular geometry from either Gaussian output files or external .xyz files.
+
+4. xyz.py
+
+   A molecular visualization tool that processes a custom .xyz file format. The script uses RDKit to build the molecule and generate a clear SVG image.
 
 
 RECOMMENDATIONS: 
