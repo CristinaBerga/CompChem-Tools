@@ -2,11 +2,11 @@ This repository contains a collection of Python scripts designed to automate the
 
 <br>
 
-Scripts
+**Scripts**
 
 <br>
 
-1. NMR.py
+*1. NMR.py*
    
 <br>
 
@@ -18,19 +18,19 @@ Scripts
 
 <br>
 
-2. multigap.py
+*2. multigap.py*
 
 <br>
 
-    This script analyses the results of HOMO-LUMO calculations. It extracts information on the HOMO, LUMO, and other nearby orbitals to calculate energy gaps. It generates a text file with a summary of the gaps for each molecule.
+   This script analyses the results of HOMO-LUMO calculations. It extracts information on the HOMO, LUMO, and other nearby orbitals to calculate the energy gaps. It generates a text file with a summary of the gaps for each molecule.
 
 <br>
 
-3. qp.py
+*3. qp.py*
 
 <br>
 
-    A tool for extracting and visualising Mulliken charges and spin densities from Gaussian output files. The script generates an Excel file with the numerical data and creates clear SVG images of the molecule, labelled with the charge or spin density values. It offers the flexibility to get molecular geometry from either Gaussian output files or external .xyz files.
+   A tool for extracting and visualising Mulliken charges and spin densities from Gaussian output files. The script generates an Excel file with the numerical data and creates clear SVG images of the molecule, labelled with the charge or spin density values. It offers the flexibility to get molecular geometry from either Gaussian output files or external .xyz files.
 
 <br>
 
@@ -38,7 +38,7 @@ Scripts
 
 <br>
 
-5. xyz.py
+*4. xyz.py*
 
 <br>
 
@@ -50,7 +50,7 @@ Scripts
 
 <br>
 
-6. PES.py
+*5. PES.py*
 
 <br>
 
@@ -66,17 +66,17 @@ Scripts
 
 <br><br>
 
-RECOMMENDATIONS: 
+**RECOMMENDATIONS:** 
 - Visual Studio Code (Free) to run scripts.
   
 - Inkscape (Free) to edit SVG files.
 
 <br><br>
 
-Contributions are welcome! If you have ideas for improving functionality, adding new tools, or fixing bugs, feel free to open an issue, submit a pull request or email me.
+**Contributions** are welcome! If you have ideas for improving functionality, adding new tools, or fixing bugs, feel free to open an issue, submit a pull request or email me.
 
 <br><br>
 
-Author: Cristina Berga
+**Author: Cristina Berga**
 
-Contact: cristina.berga@udg.edu
+**Contact: cristina.berga@udg.edu**
