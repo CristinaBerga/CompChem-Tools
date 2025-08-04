@@ -17,6 +17,9 @@ Scripts
 
    A molecular visualization tool that processes a custom .xyz file format. The script uses RDKit to build the molecule and generate a clear SVG image.
 
+5. PES.py
+
+   A graphical user interface (GUI) tool for plotting energy profiles from data contained in Excel files. See PES_Example.xlsx
 
 RECOMMENDATIONS: 
 - Visual Studio Code (Free) to run scripts.
