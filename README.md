@@ -22,7 +22,9 @@ Scripts
    A graphical user interface (GUI) tool for plotting energy profiles from data contained in Excel files. See PES_Example.xlsx
 
    ![PES.py example](images/PES-1.JPG)
+   
    ![PES.py example](images/PES-2.JPG)
+
    ![PES.py example](images/PES-3.JPG)
 
 RECOMMENDATIONS: 
