@@ -26,28 +26,27 @@ Scripts
 <br>
 
 3. qp.py
-<br>
 
     A tool for extracting and visualising Mulliken charges and spin densities from Gaussian output files. The script generates an Excel file with the numerical data and creates clear SVG images of the molecule, labelled with the charge or spin density values. It offers the flexibility to get molecular geometry from either Gaussian output files or external .xyz files.
-<br>
+
    ![qp.py example](images/qp.png)
-<br>
+
 5. xyz.py
-<br>
+
    A molecular visualization tool that processes a custom .xyz file format. The script uses RDKit to build the molecule and generate a clear SVG image.
-<br>
+
    ![xyz.py example](images/xyz.JPG)
-<br>
+
 6. PES.py
-<br>
+
    A graphical user interface (GUI) tool for plotting energy profiles from data contained in Excel files. See PES_Example.xlsx
-<br>
+
    ![PES.py example](images/PES-1.JPG)
    
    ![PES.py example](images/PES-2.jpg)
 
    ![PES.py example](images/PES-3.jpg)
-<br><br>
+
 RECOMMENDATIONS: 
 - Visual Studio Code (Free) to run scripts.
   
