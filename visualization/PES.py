@@ -216,13 +216,18 @@ class EnergyProfilePlotter:
             for i, label in enumerate(labels):
                 label_x, label_y = label_positions[i]
                 value_str = f"({values[i]:.{decimal_places}f})"
-                offset = 0.8 if self.label_position.get() == "above" else -1.2
-                ax.text(label_x, label_y + offset, label, ha='center', va='bottom' if offset > 0 else 'top', color=text_color)
-
+                offset = 0.5 if self.label_position.get() == "above" else -1.2
+                
                 if self.value_position.get() == "beside":
-                    ax.text(label_x, label_y + offset, f" {value_str}", ha='left', va='center', color=text_color)
+                    full_label_text = f"{label} {value_str}"
+                    ax.text(label_x, label_y + offset, full_label_text,
+                            ha='center', va='bottom' if offset > 0 else 'top',
+                            color=text_color)
                 else:
-                    ax.text(label_x, label_y - 2, value_str, ha='center', va='top', color=text_color)
+                    ax.text(label_x, label_y + offset, label,
+                            ha='center', va='bottom' if offset > 0 else 'top',
+                            color=text_color)
+                    ax.text(label_x, label_y - 1.0, value_str, ha='center', va='top', color=text_color)
 
             legend_handles.append(plt.Line2D([0], [0], color=line_color, linestyle=line_style, linewidth=self.line_width.get(), label=sheet))
 
