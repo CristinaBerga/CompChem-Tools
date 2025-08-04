@@ -7,23 +7,25 @@ Scripts
 
    ![NMR.py example](images/NMR.JPG)
 
-3. multigap.py
+<br><br>
+
+2. multigap.py
 
     This script analyses the results of HOMO-LUMO calculations. It extracts information on the HOMO, LUMO, and other nearby orbitals to calculate energy gaps. It generates a text file with a summary of the gaps for each molecule.
 
-4. qp.py
+3. qp.py
 
     A tool for extracting and visualising Mulliken charges and spin densities from Gaussian output files. The script generates an Excel file with the numerical data and creates clear SVG images of the molecule, labelled with the charge or spin density values. It offers the flexibility to get molecular geometry from either Gaussian output files or external .xyz files.
 
    ![qp.py example](images/qp.png)
 
-5. xyz.py
+4. xyz.py
 
    A molecular visualization tool that processes a custom .xyz file format. The script uses RDKit to build the molecule and generate a clear SVG image.
 
    ![xyz.py example](images/xyz.JPG)
 
-6. PES.py
+5. PES.py
 
    A graphical user interface (GUI) tool for plotting energy profiles from data contained in Excel files. See PES_Example.xlsx
 
