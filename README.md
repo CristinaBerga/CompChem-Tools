@@ -16,6 +16,8 @@ This repository contains a collection of Python scripts designed to automate the
 
    ![NMR.py example](images/NMR.JPG)
 
+   ![NMR.py example](images/NMR-excel.JPG)
+   
 <br>
 
 *2. multigap.py*
@@ -23,6 +25,10 @@ This repository contains a collection of Python scripts designed to automate the
 <br>
 
    This script analyses the results of HOMO-LUMO calculations. It extracts information on the HOMO, LUMO, and other nearby orbitals to calculate the energy gaps. It generates a text file with a summary of the gaps for each molecule.
+
+<br>
+
+   ![multigap.py example](images/mgap.JPG)
 
 <br>
 
@@ -35,6 +41,8 @@ This repository contains a collection of Python scripts designed to automate the
 <br>
 
    ![qp.py example](images/qp.png)
+
+   ![qp.py example](images/qp-excel.JPG)
 
 <br>
 
