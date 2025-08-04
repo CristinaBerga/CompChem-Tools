@@ -14,8 +14,15 @@ Scripts
     A tool for extracting and visualising Mulliken charges and spin densities from Gaussian output files. The script generates an Excel file with the numerical data and creates clear SVG images of the molecule, labelled with the charge or spin density values. It offers the flexibility to get molecular geometry from either Gaussian output files or external .xyz files.
 
 
+RECOMMENDATIONS: 
+- Visual Studio Code (Free) to run scripts.
+  
+- Inkscape (Free) to edit SVG files.
 
-Contributions are welcome! If you have ideas for improving functionality, adding new tools, or fixing bugs, feel free to open an issue or submit a pull request.
+
+
+Contributions are welcome! If you have ideas for improving functionality, adding new tools, or fixing bugs, feel free to open an issue, submit a pull request or email me.
+
 
 
 Author: Cristina Berga
