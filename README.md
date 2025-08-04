@@ -23,9 +23,9 @@ Scripts
 
    ![PES.py example](images/PES-1.JPG)
    
-   ![PES.py example](images/PES-2.JPG)
+   ![PES.py example](images/PES-2.jpg)
 
-   ![PES.py example](images/PES-3.JPG)
+   ![PES.py example](images/PES-3.jpg)
 
 RECOMMENDATIONS: 
 - Visual Studio Code (Free) to run scripts.
