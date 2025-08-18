@@ -72,6 +72,14 @@ This repository contains a collection of Python scripts designed to automate the
 
    ![PES.py example](images/PES-3.jpg)
 
+<br>
+
+*6. ESIpy_data.py*
+
+<br>
+
+   Powerful tool for the automated extraction and visualisation of aromaticity indices from calculations performed with the ESI_py program (https://github.com/jgrebol/ESIpy)
+
 <br><br>
 
 **RECOMMENDATIONS:** 
