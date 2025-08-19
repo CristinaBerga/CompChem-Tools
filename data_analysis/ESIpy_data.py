@@ -32,7 +32,7 @@
 #
 # Usage:
 #
-# - Place the script in a directory containing your .esi files.
+# - Place the script in a directory containing your .esi and .out files.
 #
 # - Run the script from the command line. You will be prompted to
 #   select which aromatic indices and atomic partitions you wish to
@@ -119,7 +119,7 @@ def get_mol_from_gaussian_out(filepath):
         Chem.SanitizeMol(mol_map)
         
         output_draw_mol_path = 'temp_draw.mol'
-        subprocess.check_output(['obabel', filepath, '-O', output_draw_mol_path], stderr=subprocess.STDOUT)
+        subprocess.check_output(['obabel', filepath, '-O', output_draw_mol_path], stderr=subprocess.STDOUT) # Sometimes this keyword is necessary '--gen2d'
         mol_draw = Chem.MolFromMolFile(output_draw_mol_path, removeHs=False)
         os.remove(output_draw_mol_path)
         if not mol_draw:
