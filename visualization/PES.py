@@ -2,6 +2,7 @@
 # Script: PES.py
 # Author: Cristina Berga, https://github.com/CristinaBerga/CompChem-Tools/
 # Creation Date: July 2025
+# Last Update: June 2026
 ####################################################################
 #
 # This Python script is a graphical user interface (GUI) tool
@@ -55,6 +56,7 @@ from tkinter import filedialog, simpledialog, messagebox, colorchooser
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from matplotlib import font_manager as fm
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os
 
@@ -139,9 +141,22 @@ class EnergyProfilePlotter:
         tk.Spinbox(self.options_frame, textvariable=self.decimal_places, from_=0, to=5, increment=1, width=5).grid(row=11, column=1, sticky="w")
 
         tk.Label(self.options_frame, text="Y-axis Tick Interval:").grid(row=12, column=0, sticky="w")
-        self.y_tick_interval = tk.DoubleVar(value=2.0)
+        self.y_tick_interval = tk.DoubleVar(value=5.0)
         tk.Spinbox(self.options_frame, textvariable=self.y_tick_interval, from_=0.1, to=20.0, increment=0.1, width=5, format="%.1f").grid(row=12, column=1, sticky="w")
 
+        tk.Label(self.options_frame, text="Font Family:").grid(row=13, column=0, sticky="w")
+        system_fonts = sorted(list(set([f.name for f in fm.fontManager.ttflist])))
+        if not system_fonts:
+            system_fonts = ["Arial", "Times New Roman", "sans-serif", "serif"]
+        default_font = "Arial" if "Arial" in system_fonts else system_fonts[0]
+        self.font_family = tk.StringVar(value=default_font)
+        self.font_menu = tk.OptionMenu(self.options_frame, self.font_family, *system_fonts)
+        self.font_menu.grid(row=13, column=1, sticky="w")
+
+        tk.Label(self.options_frame, text="Labels:").grid(row=14, column=0, sticky="w")
+        self.text_display = tk.StringVar(value="Yes")
+        self.display_menu = tk.OptionMenu(self.options_frame, self.text_display, "Yes", "Names Only", "Values Only", "No")
+        self.display_menu.grid(row=14, column=1, sticky="w")
 
         self.config_frame = tk.LabelFrame(self.root, text="Per Sheet Configuration")
         self.config_frame.pack(pady=10)
@@ -172,6 +187,8 @@ class EnergyProfilePlotter:
         if not selected_sheets:
             messagebox.showerror("Error", "No sheets selected")
             return
+
+        plt.rcParams['font.family'] = self.font_family.get()
 
         fig_width = 6.69 if self.figsize_option.get() == "A4" else 3.35
         fig, ax = plt.subplots(figsize=(fig_width, 3))
@@ -213,21 +230,34 @@ class EnergyProfilePlotter:
                     x2 = start_x
                     ax.plot([x1, x2], [val, next_val], color=line_color, linestyle=line_style, linewidth=self.dotted_width.get(), zorder=1)
 
-            for i, label in enumerate(labels):
-                label_x, label_y = label_positions[i]
-                value_str = f"({values[i]:.{decimal_places}f})"
-                offset = 0.5 if self.label_position.get() == "above" else -1.2
-                
-                if self.value_position.get() == "beside":
-                    full_label_text = f"{label} {value_str}"
-                    ax.text(label_x, label_y + offset, full_label_text,
-                            ha='center', va='bottom' if offset > 0 else 'top',
-                            color=text_color)
-                else:
-                    ax.text(label_x, label_y + offset, label,
-                            ha='center', va='bottom' if offset > 0 else 'top',
-                            color=text_color)
-                    ax.text(label_x, label_y - 1.0, value_str, ha='center', va='top', color=text_color)
+            display_mode = self.text_display.get()
+            if display_mode != "No":
+                for i, label in enumerate(labels):
+                    label_x, label_y = label_positions[i]
+                    value_str = f"({values[i]:.{decimal_places}f})"
+                    offset = 0.5 if self.label_position.get() == "above" else -1.2
+                    
+                    if display_mode == "Yes":
+                        if self.value_position.get() == "beside":
+                            full_label_text = f"{label} {value_str}"
+                            ax.text(label_x, label_y + offset, full_label_text,
+                                    ha='center', va='bottom' if offset > 0 else 'top',
+                                    color=text_color)
+                        else:
+                            ax.text(label_x, label_y + offset, label,
+                                    ha='center', va='bottom' if offset > 0 else 'top',
+                                    color=text_color)
+                            ax.text(label_x, label_y - 1.0, value_str, ha='center', va='top', color=text_color)
+                            
+                    elif display_mode == "Names Only":
+                        ax.text(label_x, label_y + offset, label,
+                                ha='center', va='bottom' if offset > 0 else 'top',
+                                color=text_color)
+                                
+                    elif display_mode == "Values Only":
+                        ax.text(label_x, label_y + offset, value_str,
+                                ha='center', va='bottom' if offset > 0 else 'top',
+                                color=text_color)
 
             legend_handles.append(plt.Line2D([0], [0], color=line_color, linestyle=line_style, linewidth=self.line_width.get(), label=sheet))
 
