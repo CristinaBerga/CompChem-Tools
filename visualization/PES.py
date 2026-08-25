@@ -2,14 +2,15 @@
 # Script: PES.py
 # Author: Cristina Berga, https://github.com/CristinaBerga/CompChem-Tools/
 # Creation Date: July 2025
-# Last Update: June 2026
+# Last Update: August 2026
 ####################################################################
 #
 # This Python script is a graphical user interface (GUI) tool
 # for plotting energy profiles from data contained in Excel files.
 # It allows users to visualize and customize reaction pathways with
 # a high degree of control over the plot's appearance, making it
-# ideal for presenting computational chemistry results.
+# ideal for presenting computational chemistry results. The graphs 
+# can be exported in ChemDraw (CDXML), as well as in PNG and SVG formats.
 #
 ####################################################################
 #
@@ -59,10 +60,166 @@ import matplotlib as mpl
 from matplotlib import font_manager as fm
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os
+import math
 
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['svg.fonttype'] = 'none'
+mpl.rcParams['path.simplify'] = False
+mpl.rcParams['pdf.compression'] = 0
+
+class CDXMLBuilder:
+    
+    FONT_ID = 3
+
+    def __init__(self, font_name="Arial"):
+        self._next_id = 100000
+        self._body = []
+        self.font_name = font_name
+        
+        self._custom_colors = []
+        self._color_map = {
+            '#000000': 3,
+            '#000': 3,
+            'BLACK': 3,
+            '#FFFFFF': 2,
+            '#FFF': 2,
+            'WHITE': 2
+        }
+
+    def _id(self):
+        self._next_id += 1
+        return self._next_id
+
+    def _get_color_index(self, hex_color):
+        if not hex_color or not isinstance(hex_color, str):
+            return 3
+        
+        hex_clean = hex_color.strip().upper()
+        if not hex_clean.startswith('#') and len(hex_clean) in [3, 6]:
+            hex_clean = '#' + hex_clean
+
+        if hex_clean in self._color_map:
+            return self._color_map[hex_clean]
+        
+        if len(hex_clean) == 7:
+            r = int(hex_clean[1:3], 16) / 255.0
+            g = int(hex_clean[3:5], 16) / 255.0
+            b = int(hex_clean[5:7], 16) / 255.0
+            self._custom_colors.append((r, g, b))
+            idx = len(self._custom_colors) + 3
+            self._color_map[hex_clean] = idx
+            return idx
+        return 3
+
+    def add_line(self, x1, y1, x2, y2, width=0.6, linestyle='solid', color='#000000'):
+        graphic_id = self._id()
+        arrow_id = self._id()
+        color_idx = self._get_color_index(color)
+        
+        ls_lower = str(linestyle).lower().strip()
+        
+        if ls_lower in ['dotted', 'dot']:
+            line_attr = ' LineType="Dashed" HashSpacing="1.5" DashLength="1.5"'
+        elif ls_lower in ['dashed', 'dash']:
+            line_attr = ' LineType="Dashed" HashSpacing="3.0" DashLength="4.0"'
+        elif ls_lower in ['dashdot', 'dash-dot', 'dash_dot']:
+            line_attr = ' LineType="Dashed" HashSpacing="5.0" DashLength="3.0"'
+        else:
+            line_attr = ''
+
+        self._body.append(f'''<graphic
+ id="{graphic_id}"
+ SupersededBy="{arrow_id}"
+ BoundingBox="{min(x1,x2):.2f} {min(y1,y2):.2f} {max(x1,x2):.2f} {max(y1,y2):.2f}"
+ GraphicType="Line"
+ color="{color_idx}"{line_attr}
+/>
+<arrow
+ id="{arrow_id}"
+ BoundingBox="{min(x1,x2):.2f} {min(y1,y2):.2f} {max(x1,x2):.2f} {max(y1,y2):.2f}"
+ FillType="None"
+ ArrowheadType="None"
+ color="{color_idx}"
+ Head3D="{x2:.2f} {y2:.2f} 0"
+ Tail3D="{x1:.2f} {y1:.2f} 0"
+ LineWidth="{width}"{line_attr}
+/>''')
+
+    def add_text(self, text, x, y, size=10, bold=False, justification="Center", rotation_degrees=0, color='#000000'):
+        text_str = str(text) if text is not None else ""
+        if len(text_str) == 1:
+            x -= 3
+            
+        color_idx = self._get_color_index(color)
+        face = 1 if bold else 0
+        rot = ''
+        if rotation_degrees:
+            rot = f'\n RotationAngle="{int(round(rotation_degrees * 65536))}"'
+        text_id = self._id()
+
+        self._body.append(f'''<t
+ id="{text_id}"
+ p="{x:.2f} {y:.2f}"
+ BoundingBox="0 0 110 110"
+ CaptionJustification="{justification}"
+ Justification="{justification}"{rot}
+ LineHeight="auto"
+ font="{self.FONT_ID}"
+ size="{size}"
+ color="{color_idx}"
+><s font="{self.FONT_ID}" size="{size}" color="{color_idx}" face="{face}">{text_str}</s></t>''')
+
+    def render(self, name, page_width, page_height):
+        colortable_entries = [
+            '<color r="1.000" g="1.000" b="1.000"/>',
+            '<color r="0.000" g="0.000" b="0.000"/>',
+        ]
+        for r, g, b in self._custom_colors:
+            colortable_entries.append(f'<color r="{r:.3f}" g="{g:.3f}" b="{b:.3f}"/>')
+        
+        colortable_str = "\n".join(colortable_entries)
+        page_id = self._id()
+        body = "\n\n".join(self._body)
+        
+        return f'''<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE CDXML SYSTEM "http://www.cambridgesoft.com/xml/cdxml.dtd" >
+<CDXML
+ CreationProgram="PES.py"
+ Name="{name}"
+ BoundingBox="0 0 {page_width:.2f} {page_height:.2f}"
+ Font="{self.FONT_ID}"
+ LabelFont="{self.FONT_ID}"
+ LabelSize="10"
+ CaptionFont="{self.FONT_ID}"
+ CaptionSize="10"
+ FormulaFont="{self.FONT_ID}"
+ FormulaSize="10"
+ LineWidth="0.60"
+ BoldWidth="2.01"
+ BondLength="14.40"
+ color="3"
+ bgcolor="2"
+>
+<colortable>
+{colortable_str}
+</colortable>
+<fonttable>
+<font id="{self.FONT_ID}" charset="iso-8859-1" name="{self.font_name}" family="Swiss"/>
+</fonttable>
+<page
+ id="{page_id}"
+ BoundingBox="0 0 {page_width:.2f} {page_height:.2f}"
+ HeaderPosition="36"
+ FooterPosition="36"
+ PrintTrimMarks="yes"
+ HeightPages="1"
+ WidthPages="1"
+>
+{body}
+</page>
+</CDXML>
+'''
 
 class EnergyProfilePlotter:
     def __init__(self, root):
@@ -122,11 +279,11 @@ class EnergyProfilePlotter:
 
         tk.Label(self.options_frame, text="Line Width:").grid(row=7, column=0, sticky="w")
         self.line_width = tk.DoubleVar(value=2.0)
-        tk.Spinbox(self.options_frame, textvariable=self.line_width, from_=0.1, to=10.0, increment=0.1, width=5, format="%.1f").grid(row=7, column=1, sticky="w")
+        tk.Spinbox(self.options_frame, textvariable=self.line_width, from_=0.1, to=100.0, increment=0.1, width=5, format="%.1f").grid(row=7, column=1, sticky="w")
 
         tk.Label(self.options_frame, text="Dotted Line Width:").grid(row=8, column=0, sticky="w")
         self.dotted_width = tk.DoubleVar(value=1.0)
-        tk.Spinbox(self.options_frame, textvariable=self.dotted_width, from_=0.1, to=10.0, increment=0.1, width=5, format="%.1f").grid(row=8, column=1, sticky="w")
+        tk.Spinbox(self.options_frame, textvariable=self.dotted_width, from_=0.1, to=100.0, increment=0.1, width=5, format="%.1f").grid(row=8, column=1, sticky="w")
 
         tk.Label(self.options_frame, text="Figure Size:").grid(row=9, column=0, sticky="w")
         self.figsize_option = tk.StringVar(value="A4")
@@ -181,6 +338,155 @@ class EnergyProfilePlotter:
         color_code = colorchooser.askcolor(title=f"Choose {key} color for {name}")[1]
         if color_code:
             self.sheet_config_vars[name][key] = color_code
+
+    def export_cdxml(self, save_path, selected_sheets):
+        font_selected = self.font_family.get() if hasattr(self, 'font_family') else "Arial"
+        b = CDXMLBuilder(font_name=font_selected)
+        
+        scale_x = 0.95
+        pw = self.plateau_width.get() * scale_x * 2.2
+        ps = self.plateau_spacing.get() * scale_x * 0.9
+        
+        axis_x = 55.0
+        plateau_start_x = axis_x + 30.0
+
+        all_values = []
+        parsed_data = {}
+        stage_order = []
+
+        def get_base_stage(label):
+            lbl = str(label).strip()
+            for sep in ['-', '_', ' ']:
+                if sep in lbl:
+                    parts = lbl.split(sep)
+                    if len(parts[1]) <= 2:
+                        return parts[0]
+            return lbl
+
+        for sheet in selected_sheets:
+            df = pd.read_excel(self.file_path, sheet_name=sheet)
+            
+            clean_labels = []
+            clean_values = []
+            
+            for idx, row in df.iterrows():
+                label_val = row.iloc[0]
+                energy_val = row[self.energy_type.get()]
+                
+                if pd.notna(energy_val):
+                    try:
+                        val_float = float(energy_val)
+                        if not math.isnan(val_float) and not math.isinf(val_float):
+                            lbl_str = str(label_val).strip() if pd.notna(label_val) else f"P{len(clean_values)+1}"
+                            clean_labels.append(lbl_str)
+                            clean_values.append(round(val_float, self.decimal_places.get()))
+                            
+                            base_stage = get_base_stage(lbl_str)
+                            if base_stage not in stage_order:
+                                stage_order.append(base_stage)
+                    except (ValueError, TypeError):
+                        continue
+
+            if clean_values:
+                parsed_data[sheet] = list(zip(clean_labels, clean_values))
+                all_values.extend(clean_values)
+
+        if not all_values:
+            return
+
+        stage_x_coords = {}
+        curr_x = plateau_start_x
+        for stage in stage_order:
+            stage_x_coords[stage] = curr_x
+            curr_x += pw + ps
+
+        max_x_reach = curr_x
+
+        vmin, vmax = min(all_values), max(all_values)
+        value_span = vmax - vmin or 1.0
+        y_scale = 220.0 / value_span
+        y_base = 280.0
+
+        def y_of(v):
+            return y_base - (v - vmin) * y_scale
+
+        for sheet in selected_sheets:
+            if sheet not in parsed_data:
+                continue
+
+            items = parsed_data[sheet]
+            line_color = self.sheet_config_vars[sheet]['line']
+            text_color = self.sheet_config_vars[sheet]['text']
+            line_style = self.sheet_config_vars[sheet]['style'].get()
+
+            drawn_points = []
+
+            for lbl, val in items:
+                base_stage = get_base_stage(lbl)
+
+                if base_stage in stage_x_coords:
+                    x0 = stage_x_coords[base_stage]
+                else:
+                    x0 = plateau_start_x + len(drawn_points) * (pw + ps)
+
+                x1 = x0 + pw
+                y = y_of(val)
+                drawn_points.append((x1, y, x0))
+
+                b.add_line(x0, y, x1, y, width=self.line_width.get(), linestyle='solid', color=line_color)
+
+                display_mode = self.text_display.get()
+                if display_mode != "No":
+                    lx = (x0 + x1) / 2
+                    val_str = f"({val:.{self.decimal_places.get()}f})"
+                    is_above = (self.label_position.get() == "above")
+                    offset_name = -10 if is_above else 14
+                    offset_val = 12 if is_above else 24
+
+                    if display_mode == "Yes":
+                        if self.value_position.get() == "beside":
+                            b.add_text(f"{lbl} {val_str}", lx, y + offset_name, bold=True, color=text_color)
+                        else:
+                            b.add_text(lbl, lx, y + offset_name, bold=True, color=text_color)
+                            b.add_text(val_str, lx, y + offset_val, color=text_color)
+                    elif display_mode == "Names Only":
+                        b.add_text(lbl, lx, y + offset_name, bold=True, color=text_color)
+                    elif display_mode == "Values Only":
+                        b.add_text(val_str, lx, y + offset_name, color=text_color)
+
+            for i in range(len(drawn_points) - 1):
+                prev_x1, prev_y, _ = drawn_points[i]
+                _, next_y, next_x0 = drawn_points[i + 1]
+                b.add_line(prev_x1, prev_y, next_x0, next_y, width=self.dotted_width.get(), linestyle=line_style, color=line_color)
+
+        step = self.y_tick_interval.get()
+        lo = math.floor(vmin / step) * step
+        hi = math.ceil(vmax / step) * step
+        
+        ticks = []
+        t = lo
+        while t <= hi + step * 0.5:
+            ticks.append(round(t, 6))
+            t += step
+
+        axis_top_y = y_of(hi)
+        axis_bottom_y = y_of(lo)
+        b.add_line(axis_x, axis_top_y, axis_x, axis_bottom_y, width=1.0, linestyle='solid', color='#000000')
+        
+        for tick_val in ticks:
+            ty = y_of(tick_val)
+            b.add_line(axis_x - 5, ty, axis_x, ty, width=1.0, linestyle='solid', color='#000000')
+            b.add_text(f"{tick_val:.1f}", axis_x - 10, ty + 3, justification="Right", color='#000000')
+
+        axis_title_x = axis_x - 35
+        axis_title_y = (axis_top_y + axis_bottom_y) / 2
+        b.add_text(f"{self.energy_type.get()} (kcal/mol)", axis_title_x, axis_title_y, rotation_degrees=270, color='#000000')
+
+        page_width = max_x_reach + 40.0
+        page_height = 360.0
+        
+        with open(save_path, 'w', encoding='utf-8') as fh:
+            fh.write(b.render("reaction_path.cdxml", page_width, page_height))
 
     def plot(self):
         selected_sheets = [name for var, name in self.sheet_vars if var.get()]
@@ -282,13 +588,19 @@ class EnergyProfilePlotter:
 
         save = messagebox.askyesno("Save", "Do you want to save the plot?")
         if save:
-            filetypes = [("PNG", "*.png"), ("SVG", "*.svg")]
-            save_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=filetypes)
+            filetypes = [
+                ("ChemDraw CDXML (*.cdxml)", "*.cdxml"),
+                ("PNG Image (*.png)", "*.png"),
+                ("SVG Vector (*.svg)", "*.svg"),
+            ]
+            save_path = filedialog.asksaveasfilename(defaultextension=".cdxml", filetypes=filetypes)
             if save_path:
-                if save_path.endswith(".png"):
+                if save_path.endswith(".cdxml"):
+                    self.export_cdxml(save_path, selected_sheets)
+                elif save_path.endswith(".png"):
                     fig.savefig(save_path, transparent=True, dpi=300)
                 elif save_path.endswith(".svg"):
-                    fig.savefig(save_path, format='svg', dpi=300, transparent=False, bbox_inches='tight', pad_inches=0.05, metadata={'Creator': 'EnergyProfilePlotter'})
+                    fig.savefig(save_path, format='svg', dpi=300, transparent=False, bbox_inches='tight', pad_inches=0.05, metadata={'Creator': 'Cristina Berga'})
 
 if __name__ == '__main__':
     root = tk.Tk()
